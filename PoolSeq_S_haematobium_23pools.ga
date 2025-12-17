@@ -1,0 +1,85 @@
+{
+  "name": "PoolSeq_S_haematobium_23pools",
+  "creator": "ChatGPT",
+  "creation_time": "2025-12-17T12:00:00Z",
+  "steps": [
+    {
+      "id": 1,
+      "tool_id": "fastqc",
+      "name": "FastQC",
+      "type": "tool",
+      "tool_state": "{\"input_type\":\"collection\"}",
+      "input_connections": {}
+    },
+    {
+      "id": 2,
+      "tool_id": "multiqc",
+      "name": "MultiQC",
+      "type": "tool",
+      "tool_state": "{\"input\":1}",
+      "input_connections": {
+        "input": [{"id":1,"output_name":"output"}]
+      }
+    },
+    {
+      "id": 3,
+      "tool_id": "trimmomatic",
+      "name": "Trimmomatic PE",
+      "type": "tool",
+      "tool_state": "{\"adapter_clipping\":\"ILLUMINACLIP:TruSeq3-PE.fa:2:30:10\",\"slidingwindow\":\"4:20\",\"minlen\":\"80\"}",
+      "input_connections": {}
+    },
+    {
+      "id": 4,
+      "tool_id": "bwa_mem",
+      "name": "BWA-MEM",
+      "type": "tool",
+      "tool_state": "{\"paired_end\":true,\"reference_source\":\"history\"}",
+      "input_connections": {
+        "forward_reads": [{"id":3,"output_name":"forward_paired"}],
+        "reverse_reads": [{"id":3,"output_name":"reverse_paired"}]
+      }
+    },
+    {
+      "id": 5,
+      "tool_id": "samtools_sort",
+      "name": "Samtools sort",
+      "type": "tool",
+      "tool_state": "{}",
+      "input_connections": {
+        "input": [{"id":4,"output_name":"bam"}]
+      }
+    },
+    {
+      "id": 6,
+      "tool_id": "samtools_index",
+      "name": "Samtools index",
+      "type": "tool",
+      "tool_state": "{}",
+      "input_connections": {
+        "input": [{"id":5,"output_name":"bam"}]
+      }
+    },
+    {
+      "id": 7,
+      "tool_id": "samtools_mpileup",
+      "name": "Samtools mpileup",
+      "type": "tool",
+      "tool_state": "{\"min_base_quality\":\"20\",\"min_map_quality\":\"20\",\"disable_baq\":\"true\",\"max_depth\":\"5000\"}",
+      "input_connections": {
+        "bam": [{"id":6,"output_name":"bam"}]
+      }
+    },
+    {
+      "id": 8,
+      "tool_id": "freebayes",
+      "name": "FreeBayes Pool-Seq",
+      "type": "tool",
+      "tool_state": "{\"ploidy\":\"20\",\"pooled_continuous\":true,\"min_allele_freq\":\"0.01\"}",
+      "input_connections": {
+        "bam": [{"id":6,"output_name":"bam"}]
+      }
+    }
+  ],
+  "format": "1.1"
+}
